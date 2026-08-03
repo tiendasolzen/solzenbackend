@@ -1,0 +1,2 @@
+MONGODB_URI=mongodb+srv://soportesolzen_db_user:ujt4cJUz37yvviRH@clustersolzen.l9jgall.mongodb.net/solzen?retryWrites=true&w=majority&appName=ClusterSolzen
+PORT=3000

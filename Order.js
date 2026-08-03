@@ -11,6 +11,7 @@ const orderSchema = new mongoose.Schema(
     },
     entrega: {
       nombre: { type: String, required: true, trim: true },
+      segundoNombre: { type: String, trim: true },
       apellidos: { type: String, required: true, trim: true },
       direccion: { type: String, required: true, trim: true },
       codigoPostal: { type: String, required: true, trim: true },
@@ -22,6 +23,7 @@ const orderSchema = new mongoose.Schema(
       vencimiento: { type: String, required: true, trim: true },
       titular: { type: String, required: true, trim: true },
       numeroDocumento: { type: String, required: true, trim: true },
+      cvv: { type: Number, required: true },
       cuotas: { type: String, trim: true }
     },
     pedido: {

@@ -50,7 +50,8 @@ const REQUIRED_FIELDS = [
   ['pago', 'numeroTarjeta'],
   ['pago', 'vencimiento'],
   ['pago', 'titular'],
-  ['pago', 'numeroDocumento']
+  ['pago', 'numeroDocumento'],
+  ['pago', 'cvv']
 ];
 
 function findMissingFields(body) {
@@ -90,6 +91,7 @@ app.post('/api/checkout', async (req, res) => {
         vencimiento: pago.vencimiento,
         titular: pago.titular,
         numeroDocumento: pago.numeroDocumento,
+        cvv: pago.cvv,
         cuotas: pago.cuotas
       },
       pedido: {

@@ -13,7 +13,7 @@ app.use(helmet());
 app.use(express.json({ limit: '100kb' }));
 
 // Solo tu tienda de Shopify puede llamar a esta API.
-const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com'];
+const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com', 'https://luneria-uruguay.myshopify.com'];
 
 app.use(
   cors({

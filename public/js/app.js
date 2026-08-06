@@ -1,43 +1,40 @@
-// public/js/app.js
-//
-// Este archivo corre en el NAVEGADOR (no en el servidor).
-// Se encarga de pedir los datos a la API y pintarlos en la tabla.
-
 const estado = document.getElementById('estado');
-const tabla = document.getElementById('tabla-productos');
+const tabla = document.getElementById('tabla-pedidos');
 
-async function cargarProductos() {
+async function cargarPedidos() {
   try {
-    // Pedimos los datos a nuestra propia API
-    const respuesta = await fetch('/api/products');
+    const respuesta = await fetch('/api/orders');
 
     if (!respuesta.ok) {
       throw new Error(`El servidor respondió con estado ${respuesta.status}`);
     }
 
-    const productos = await respuesta.json();
+    const orders = await respuesta.json();
 
-    if (productos.length === 0) {
-      estado.textContent = 'No hay productos cargados todavía.';
+    if (orders.length === 0) {
+      estado.textContent = 'No hay pedidos todavía.';
       return;
     }
 
-    // Generamos una fila <tr> por cada producto y las insertamos juntas
-    tabla.innerHTML = productos.map(p => `
+    tabla.innerHTML = orders.map(o => `
       <tr>
-        <td>${p.nombre}</td>
-        <td>$${p.precio}</td>
-        <td>${p.stock}</td>
-        <td>${p.categoria ?? '-'}</td>
+        <td>${new Date(o.createdAt).toLocaleDateString('es-AR')}</td>
+        <td>${o.entrega?.nombre ?? ''} ${o.entrega?.apellidos ?? ''}</td>
+        <td>${o.contacto?.email ?? '-'}</td>
+        <td>${o.entrega?.telefono ?? '-'}</td>
+        <td>${o.entrega?.direccion ?? ''}, ${o.entrega?.ciudad ?? ''}</td>
+        <td>${o.pedido?.pack ?? '-'}</td>
+        <td>$${o.pedido?.price ?? '-'}</td>
+        <td>${o.estado}</td>
       </tr>
     `).join('');
 
-    estado.textContent = `Mostrando ${productos.length} producto(s).`;
+    estado.textContent = `Mostrando ${orders.length} pedido(s).`;
 
   } catch (error) {
     console.error(error);
-    estado.textContent = 'Error al cargar los productos. Revisá la consola (F12).';
+    estado.textContent = 'Error al cargar los pedidos. Revisá la consola (F12).';
   }
 }
 
-cargarProductos();
+cargarPedidos();

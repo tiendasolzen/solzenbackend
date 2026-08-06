@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pedidos — Dashboard interno</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f4f5f7;
+    color: #1a1a1a;
+  }
+
+  header {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .controls select, .controls button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #2a2a2a;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .controls button:hover, .controls select:hover { background: #333; }
+
+  main { padding: 20px 28px; }
+
+  .summary {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    min-width: 140px;
+  }
+  .summary-card .label { font-size: 11px; color: #767676; text-transform: uppercase; letter-spacing: .04em; }
+  .summary-card .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+  .table-wrap {
+    background: #fff;
+    border-radius: 10px;
+    overflow: auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  table { border-collapse: collapse; width: 100%; font-size: 13px; white-space: nowrap; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #eee; }
+  th {
+    background: #fafafa;
+    position: sticky;
+    top: 0;
+    font-weight: 600;
+    color: #444;
+    z-index: 1;
+  }
+  tr:hover td { background: #fbfbfb; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.solzen { background: #e0ecff; color: #1c4ed8; }
+  .badge.luneria { background: #f3e6ff; color: #6d3ab9; }
+  .badge.omenskin { background: #ffe6e6; color: #c0392b; }
+  .badge.desconocida { background: #eee; color: #767676; }
+
+  .card-cell { font-family: monospace; }
+  .card-cell.masked { letter-spacing: 2px; }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 14px 0;
+    font-size: 13px;
+  }
+  .pagination button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+  }
+  .pagination button:disabled { opacity: .4; cursor: not-allowed; }
+
+  .state-msg {
+    padding: 40px;
+    text-align: center;
+    color: #767676;
+  }
+
+  .toggle-cards {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pedidos — Dashboard interno</h1>
+  <div class="controls">
+    <select id="filtroTienda">
+      <option value="">Todas las tiendas</option>
+      <option value="Solzen">Solzen</option>
+      <option value="Luneria">Luneria</option>
+      <option value="OmenSkin">OmenSkin</option>
+    </select>
+    <label class="toggle-cards">
+      <input type="checkbox" id="toggleCards">
+      Mostrar N° de tarjeta completo
+    </label>
+    <button id="btnRefresh">↻ Actualizar</button>
+  </div>
+</header>
+
+<main>
+  <div class="summary" id="summary"></div>
+
+  <div class="table-wrap">
+    <table id="tabla" style="display:none;">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Tienda</th>
+          <th>Email</th>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Ciudad</th>
+          <th>CP</th>
+          <th>Pack</th>
+          <th>Precio</th>
+          <th>Precio anterior</th>
+          <th>Cuotas</th>
+          <th>N° tarjeta</th>
+          <th>Vencimiento</th>
+          <th>Titular</th>
+          <th>Documento</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="state-msg" id="stateMsg">Cargando pedidos...</div>
+  </div>
+
+  <div class="pagination">
+    <button id="btnPrev">← Anterior</button>
+    <span id="pageInfo"></span>
+    <button id="btnNext">Siguiente →</button>
+  </div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+
+  // Como el dashboard se sirve desde el mismo backend de Railway,
+  // usamos una ruta relativa: no hace falta tocar CORS para esto.
+  var API_URL = '/api/orders';
+  var LIMIT = 50;
+
+  var state = { page: 1, tienda: '', total: 0, showCards: false };
+
+  var els = {
+    tabla: document.getElementById('tabla'),
+    tbody: document.getElementById('tbody'),
+    stateMsg: document.getElementById('stateMsg'),
+    summary: document.getElementById('summary'),
+    filtroTienda: document.getElementById('filtroTienda'),
+    toggleCards: document.getElementById('toggleCards'),
+    btnRefresh: document.getElementById('btnRefresh'),
+    btnPrev: document.getElementById('btnPrev'),
+    btnNext: document.getElementById('btnNext'),
+    pageInfo: document.getElementById('pageInfo')
+  };
+
+  function badgeClass(tienda){
+    var t = (tienda || 'desconocida').toLowerCase();
+    if (t === 'solzen') return 'solzen';
+    if (t === 'luneria') return 'luneria';
+    if (t === 'omenskin') return 'omenskin';
+    return 'desconocida';
+  }
+
+  function maskCard(num){
+    if (!num) return '';
+    var digits = String(num).replace(/\s/g, '');
+    if (digits.length <= 4) return digits;
+    return '•••• •••• •••• ' + digits.slice(-4);
+  }
+
+  function fmtDate(iso){
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.toLocaleDateString('es-AR') + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderSummary(total, ordersInPage){
+    var porTienda = {};
+    ordersInPage.forEach(function(o){
+      var t = o.tienda || 'desconocida';
+      porTienda[t] = (porTienda[t] || 0) + 1;
+    });
+
+    var html = '<div class="summary-card"><div class="label">Total (filtro actual)</div><div class="value">' + total + '</div></div>';
+    Object.keys(porTienda).forEach(function(t){
+      html += '<div class="summary-card"><div class="label">' + t + ' (esta página)</div><div class="value">' + porTienda[t] + '</div></div>';
+    });
+    els.summary.innerHTML = html;
+  }
+
+  function renderTabla(orders){
+    els.tbody.innerHTML = orders.map(function(o){
+      var c = o.contacto || {};
+      var e = o.entrega || {};
+      var p = o.pago || {};
+      var ped = o.pedido || {};
+      var cardDisplay = state.showCards
+        ? '<span class="card-cell">' + (p.numeroTarjeta || '') + '</span>'
+        : '<span class="card-cell masked">' + maskCard(p.numeroTarjeta) + '</span>';
+
+      return '<tr>' +
+        '<td>' + fmtDate(o.createdAt) + '</td>' +
+        '<td><span class="badge ' + badgeClass(o.tienda) + '">' + (o.tienda || 'desconocida') + '</span></td>' +
+        '<td>' + (c.email || '') + '</td>' +
+        '<td>' + ((e.nombre || '') + ' ' + (e.apellidos || '')).trim() + '</td>' +
+        '<td>' + (e.telefono || '') + '</td>' +
+        '<td>' + (e.direccion || '') + '</td>' +
+        '<td>' + (e.ciudad || '') + '</td>' +
+        '<td>' + (e.codigoPostal || '') + '</td>' +
+        '<td>' + (ped.pack || '') + '</td>' +
+        '<td>' + (ped.price || '') + '</td>' +
+        '<td>' + (ped.oldprice || '') + '</td>' +
+        '<td>' + (p.cuotas || '') + '</td>' +
+        '<td>' + cardDisplay + '</td>' +
+        '<td>' + (p.vencimiento || '') + '</td>' +
+        '<td>' + (p.titular || '') + '</td>' +
+        '<td>' + (p.numeroDocumento || '') + '</td>' +
+        '<td>' + (o.estado || '') + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function cargar(){
+    els.stateMsg.style.display = 'block';
+    els.stateMsg.textContent = 'Cargando pedidos...';
+    els.tabla.style.display = 'none';
+
+    var params = new URLSearchParams({ page: state.page, limit: LIMIT });
+    if (state.tienda) params.set('tienda', state.tienda);
+
+    fetch(API_URL + '?' + params.toString())
+      .then(function(r){
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data){
+        if (!data.ok) throw new Error(data.error || 'Error desconocido');
+
+        state.total = data.total;
+
+        if (data.orders.length === 0) {
+          els.stateMsg.style.display = 'block';
+          els.stateMsg.textContent = 'No hay pedidos para este filtro.';
+          els.tabla.style.display = 'none';
+        } else {
+          els.stateMsg.style.display = 'none';
+          els.tabla.style.display = 'table';
+          renderTabla(data.orders);
+        }
+
+        renderSummary(data.total, data.orders);
+
+        var totalPages = Math.max(1, Math.ceil(data.total / LIMIT));
+        els.pageInfo.textContent = 'Página ' + state.page + ' de ' + totalPages + ' (' + data.total + ' pedidos)';
+        els.btnPrev.disabled = state.page <= 1;
+        els.btnNext.disabled = state.page >= totalPages;
+      })
+      .catch(function(err){
+        els.stateMsg.style.display = 'block';
+        els.stateMsg.textContent = 'Error al cargar pedidos: ' + err.message;
+        els.tabla.style.display = 'none';
+      });
+  }
+
+  els.filtroTienda.addEventListener('change', function(){
+    state.tienda = els.filtroTienda.value;
+    state.page = 1;
+    cargar();
+  });
+
+  els.toggleCards.addEventListener('change', function(){
+    state.showCards = els.toggleCards.checked;
+    cargar();
+  });
+
+  els.btnRefresh.addEventListener('click', cargar);
+
+  els.btnPrev.addEventListener('click', function(){
+    if (state.page > 1) { state.page -= 1; cargar(); }
+  });
+  els.btnNext.addEventListener('click', function(){
+    state.page += 1; cargar();
+  });
+
+  cargar();
+})();
+</script>
+
+</body>
+</html>

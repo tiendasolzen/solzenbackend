@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const connectDB = require('./config/db');
-const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 const Order = require('./models/Order');
 
@@ -70,7 +70,7 @@ app.get('/', async (req, res) => {
   }
 });
 
-app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 
 // --- Endpoint principal ---
 app.post('/api/checkout', async (req, res) => {

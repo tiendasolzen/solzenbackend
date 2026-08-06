@@ -4,13 +4,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
+const connectDB = require('./config/db');
+const productRoutes = require('./routes/productRoutes');
 
 const Order = require('./models/Order');
 
 const app = express();
+connectDB();
 
 app.use(helmet());
 app.use(express.json({ limit: '100kb' }));
+app.use(express.static('public'));
 
 // Solo tu tienda de Shopify puede llamar a esta API.
 const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com', 'https://luneria-uruguay.myshopify.com', 'https://omenskin-uy.myshopify.com'];
@@ -28,15 +32,6 @@ app.use(
     allowedHeaders: ['Content-Type']
   })
 );
-
-// --- Conexión a MongoDB Atlas ---
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log('Conectado a MongoDB'))
-  .catch((err) => {
-    console.error('Error conectando a MongoDB:', err.message);
-    process.exit(1);
-  });
 
 // Campos obligatorios (los mismos que valida el checkout del lado del cliente)
 const REQUIRED_FIELDS = [
@@ -74,6 +69,8 @@ app.get('/', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los datos' });
   }
 });
+
+app.use('/api/products', productRoutes);
 
 // --- Endpoint principal ---
 app.post('/api/checkout', async (req, res) => {
@@ -124,5 +121,4 @@ app.post('/api/checkout', async (req, res) => {
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
+app.listen(process.env.PORT || 3000, () => console.log('Servidor arriba'));

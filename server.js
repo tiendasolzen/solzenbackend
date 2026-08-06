@@ -11,7 +11,6 @@ const app = express();
 
 app.use(helmet());
 app.use(express.json({ limit: '100kb' }));
-app.use(express.static('public'));
 
 // Solo tu tienda de Shopify puede llamar a esta API.
 const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com', 'https://luneria-uruguay.myshopify.com', 'https://omenskin-uy.myshopify.com'];
@@ -66,6 +65,16 @@ function findMissingFields(body) {
   return missing;
 }
 
+
+app.get('/', async (req, res) => {
+  try {
+    const datos = await Order.find();
+    res.json(datos);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los datos' });
+  }
+});
+
 // --- Endpoint principal ---
 app.post('/api/checkout', async (req, res) => {
   try {
@@ -117,13 +126,3 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
-// Ruta para traer todos los pedidos
-app.get('/api/orders', async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ createdAt: -1 }); // más recientes primero
-    res.json(orders);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los pedidos' });
-  }
-});

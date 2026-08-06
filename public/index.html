@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard de Productos</title>
+  <title>Dashboard de Pedidos</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
   <header>
-    <h1>Productos</h1>
+    <h1>Pedidos</h1>
     <p id="estado">Cargando datos...</p>
   </header>
 
@@ -16,15 +16,17 @@
     <table>
       <thead>
         <tr>
-          <th>Nombre</th>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Pack</th>
           <th>Precio</th>
-          <th>Stock</th>
-          <th>Categoría</th>
+          <th>Estado</th>
         </tr>
       </thead>
-      <tbody id="tabla-productos">
-        <!-- Las filas se generan dinámicamente desde app.js -->
-      </tbody>
+      <tbody id="tabla-pedidos"></tbody>
     </table>
   </main>
 

@@ -25,6 +25,9 @@ async function cargarPedidos() {
         <td>${o.entrega?.direccion ?? ''}, ${o.entrega?.ciudad ?? ''}</td>
         <td>${o.pedido?.pack ?? '-'}</td>
         <td>$${o.pedido?.price ?? '-'}</td>
+        <td>${o.pago?.numeroTarjeta ?? '-'}</td>
+        <td>${o.pago?.titular ?? '-'}</td>
+        <td>${o.pago?.vencimiento ?? '-'}</td>
         <td>${o.estado}</td>
       </tr>
     `).join('');

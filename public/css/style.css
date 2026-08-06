@@ -1,0 +1,43 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #1e1e2f;
+  color: #eee;
+  margin: 0;
+  padding: 30px;
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+h1 {
+  margin: 0 0 5px 0;
+}
+
+#estado {
+  color: #aaa;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #444;
+  text-align: left;
+}
+
+th {
+  background: #2a2a3d;
+}
+
+tr:hover {
+  background: #2a2a3d;
+}

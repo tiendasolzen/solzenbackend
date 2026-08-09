@@ -17,7 +17,7 @@ app.use(express.json({ limit: '100kb' }));
 app.use(express.static('public'));
 
 // Solo tu tienda de Shopify puede llamar a esta API.
-const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com', 'https://luneria-uruguay.myshopify.com', 'https://omenskin-uy.myshopify.com', 'https://primelab-9196.myshopify.com'];
+const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com', 'https://luneria-uruguay.myshopify.com', 'https://omenskin-uy.myshopify.com', 'https://primelab-9196.myshopify.com', 'https://only-dino-3d.myshopify.com'];
 
 app.use(
   cors({

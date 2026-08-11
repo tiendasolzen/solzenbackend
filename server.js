@@ -8,6 +8,8 @@ const connectDB = require('./config/db');
 const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes');
 const requireAuth = require('./middleware/auth');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 const Order = require('./models/Order');
 
@@ -17,6 +19,21 @@ connectDB();
 app.use(helmet());
 app.use(express.json({ limit: '100kb' }));
 app.use(express.static('public'));
+
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 8 * 60 * 60 * 1000
+  }
+}));
 
 // Solo tu tienda de Shopify puede llamar a esta API.
 const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com', 'https://luneria-uruguay.myshopify.com', 'https://omenskin-uy.myshopify.com', 'https://primelab-9196.myshopify.com', 'https://only-dino-3d.myshopify.com'];
@@ -63,17 +80,21 @@ function findMissingFields(body) {
 }
 
 
-app.get('/', requireAuth, async (req, res) => {
+app.get('/pedidos', requireAuth, async (req, res) => {
   try {
-    const datos = await Order.find();
-    res.json(datos);
+    const orders = await Order.find();
+    res.render('pedidos', { orders, username: req.session.username });
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los datos' });
+    res.status(500).send('Error al obtener los pedidos');
   }
 });
 
+app.get('/', (req, res) => {
+  res.redirect(req.session && req.session.adminId ? '/pedidos' : '/login');
+});
+
 app.use('/api/orders', orderRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/', authRoutes);
 
 // --- Endpoint principal ---
 app.post('/api/checkout', async (req, res) => {

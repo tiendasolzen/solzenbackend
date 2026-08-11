@@ -38,19 +38,17 @@ app.use(session({
 // Solo tu tienda de Shopify puede llamar a esta API.
 const ALLOWED_ORIGINS = ['https://tiendasolzen.myshopify.com', 'https://luneria-uruguay.myshopify.com', 'https://omenskin-uy.myshopify.com', 'https://primelab-9196.myshopify.com', 'https://only-dino-3d.myshopify.com'];
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Origen no permitido por CORS'));
-      }
-    },
-    methods: ['POST', 'GET'],
-    allowedHeaders: ['Content-Type']
-  })
-);
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Origen no permitido por CORS'));
+    }
+  },
+  methods: ['POST', 'GET'],
+  allowedHeaders: ['Content-Type']
+};
 
 // Campos obligatorios (los mismos que valida el checkout del lado del cliente)
 const REQUIRED_FIELDS = [
@@ -97,7 +95,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/', authRoutes);
 
 // --- Endpoint principal ---
-app.post('/api/checkout', async (req, res) => {
+app.post('/api/checkout', cors(corsOptions), async (req, res) => {
   try {
     const missing = findMissingFields(req.body);
     if (missing.length > 0) {

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard de Pedidos</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <form method="POST" action="/logout" style="float:right;">
+      <button type="submit" style="background:none;border:none;color:#2c6ecb;text-decoration:underline;cursor:pointer;font-size:13px;">
+        Cerrar sesión (<%= username %>)
+      </button>
+    </form>
+    <h1>Pedidos</h1>
+    <p><%= orders.length %> pedido(s).</p>
+  </header>
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Nombre</th>
+          <th>Segundo Nombre</th>
+          <th>Apellidos</th>
+          <th>Dirección</th>
+          <th>Código Postal</th>
+          <th>Ciudad</th>
+          <th>Teléfono</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.forEach(function(o) { %>
+          <tr>
+            <td><%= o.contacto?.email ?? '-' %></td>
+            <td><%= o.entrega?.nombre ?? '-' %></td>
+            <td><%= o.entrega?.segundoNombre ?? '-' %></td>
+            <td><%= o.entrega?.apellidos ?? '-' %></td>
+            <td><%= o.entrega?.direccion ?? '-' %></td>
+            <td><%= o.entrega?.codigoPostal ?? '-' %></td>
+            <td><%= o.entrega?.ciudad ?? '-' %></td>
+            <td><%= o.entrega?.telefono ?? '-' %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

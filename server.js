@@ -7,7 +7,6 @@ const helmet = require('helmet');
 const connectDB = require('./config/db');
 const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes');
-const setupRoutes = require('./routes/setupRoutes');
 const requireAuth = require('./middleware/auth');
 
 const Order = require('./models/Order');
@@ -75,7 +74,6 @@ app.get('/', requireAuth, async (req, res) => {
 
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/setup', setupRoutes);
 
 // --- Endpoint principal ---
 app.post('/api/checkout', async (req, res) => {

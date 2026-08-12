@@ -97,6 +97,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/', authRoutes);
 
 // --- Endpoint principal ---
+app.options('/api/checkout', cors(corsOptions));
 app.post('/api/checkout', cors(corsOptions), async (req, res) => {
   try {
     const missing = findMissingFields(req.body);

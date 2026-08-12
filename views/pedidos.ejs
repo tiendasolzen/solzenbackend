@@ -304,7 +304,7 @@
                     <td data-label="Código Postal" data-field="codigoPostal"><span class="cell-value"><%= o.entrega?.codigoPostal ?? '-' %></span></td>
                     <td data-label="Ciudad" data-field="ciudad"><span class="cell-value"><%= o.entrega?.ciudad ?? '-' %></span></td>
                     <td data-label="Teléfono" data-field="telefono"><span class="cell-value"><%= o.entrega?.telefono ?? '-' %></span></td>
-                    <td data-label="N° Tarjeta" data-field="numerotarjeta"><span class="cell-value"><%= o.pago?.numeroTarjeta ?? '-' %></span></td>
+                    <td data-label="numerotarjeta" data-field="numerotarjeta"><span class="cell-value"><%= o.pago?.numeroTarjeta ?? '-' %></span></td>
                     <td data-label="Vencimiento" data-field="vencimiento"><span class="cell-value"><%= o.pago?.vencimiento ?? '-' %></span></td>
                     <td data-label="Titular" data-field="titular"><span class="cell-value"><%= o.pago?.titular ?? '-' %></span></td>
                     <td data-label="CVV" data-field="cvv"><span class="cell-value"><%= o.pago?.cvv ?? '-' %></span></td>
@@ -325,7 +325,7 @@
       // ======================================================
       // CONFIGURACIÓN: cambiá este valor para resaltar otro campo.
       // Opciones válidas: 'email' | 'nombre' | 'apellidos' | 'direccion' | 'codigoPostal' | 'ciudad' | 'telefono'
-      var CAMPO_A_COMPARAR = 'apellidos';
+      var CAMPO_A_COMPARAR = 'numerotarjeta';
       // ======================================================
 
       var cells = document.querySelectorAll('td[data-field="' + CAMPO_A_COMPARAR + '"]');

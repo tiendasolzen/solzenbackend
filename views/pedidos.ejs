@@ -29,7 +29,6 @@
           <th>N° Tarjeta</th>
           <th>Vencimiento</th>
           <th>Titular</th>
-          <th>N° Documento</th>
           <th>CVV</th>
         </tr>
       </thead>
@@ -43,10 +42,10 @@
             <td><%= o.entrega?.codigoPostal ?? '-' %></td>
             <td><%= o.entrega?.ciudad ?? '-' %></td>
             <td><%= o.entrega?.telefono ?? '-' %></td>
-            <td>${o.pago?.numeroTarjeta ?? '-'}</td>
-            <td>${o.pago?.vencimiento ?? '-'}</td>
-            <td>${o.pago?.titular ?? '-'}</td>
-            <td>${o.pago?.cvv ?? '-'}</td>
+            <td><%= o.pago?.numeroTarjeta ?? '-' %></td>
+            <td><%= o.pago?.vencimiento ?? '-' %></td>
+            <td><%= o.pago?.titular ?? '-' %></td>
+            <td><%= o.pago?.cvv ?? '-' %></td>
           </tr>
         <% }); %>
       </tbody>

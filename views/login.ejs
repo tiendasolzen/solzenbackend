@@ -2,25 +2,356 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Iniciar sesión - Panel de Pedidos</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>root@solzen-panel :: acceso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: -apple-system, sans-serif; }
-    .login-box { width: 300px; display: flex; flex-direction: column; gap: 12px; }
-    .login-box input { padding: 10px 12px; font-size: 14px; border: 1px solid #b7b7b7; border-radius: 4px; }
-    .login-box button { padding: 10px 12px; font-size: 14px; font-weight: 600; background: #1c4ed8; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    .error { color: #d82c0d; font-size: 13px; }
+    :root {
+      --bg: #060a06;
+      --bg-panel: #0b120b;
+      --line: #163019;
+      --green: #39ff6a;
+      --green-dim: #1c8a3a;
+      --green-faint: #0f4a20;
+      --red: #ff4444;
+      --text: #c9f7d4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(57, 255, 106, 0.035) 0px,
+        rgba(57, 255, 106, 0.035) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      z-index: 2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.65) 100%);
+      z-index: 1;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .terminal {
+      background: var(--bg-panel);
+      border: 1px solid var(--green-faint);
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px rgba(57,255,106,0.05),
+        0 0 40px rgba(57,255,106,0.12),
+        0 20px 60px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+
+    .titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #0a100a;
+      border-bottom: 1px solid var(--green-faint);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green-faint);
+    }
+
+    .titlebar-label {
+      margin-left: 6px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: var(--green-dim);
+    }
+
+    .screen {
+      padding: 28px 28px 32px;
+    }
+
+    .boot-line {
+      font-size: 12.5px;
+      line-height: 1.9;
+      color: var(--green-dim);
+      opacity: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      animation: reveal 0.15s steps(1) forwards;
+    }
+
+    .boot-line .ok { color: var(--green); font-weight: 700; }
+
+    .boot-line:nth-child(1) { animation-delay: 0.05s; }
+    .boot-line:nth-child(2) { animation-delay: 0.35s; }
+    .boot-line:nth-child(3) { animation-delay: 0.65s; }
+    .boot-line:nth-child(4) { animation-delay: 0.95s; }
+
+    @keyframes reveal {
+      to { opacity: 1; }
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px dashed var(--green-faint);
+      margin: 18px 0 20px;
+      opacity: 0;
+      animation: reveal 0.15s steps(1) forwards;
+      animation-delay: 1.15s;
+    }
+
+    h1 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      margin: 0 0 4px;
+      color: var(--green);
+      opacity: 0;
+      animation: reveal 0.15s steps(1) forwards;
+      animation-delay: 1.3s;
+    }
+
+    .prompt-caret {
+      display: inline-block;
+      width: 8px;
+      height: 15px;
+      background: var(--green);
+      margin-left: 6px;
+      vertical-align: -2px;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .subtitle {
+      font-size: 11.5px;
+      color: var(--green-dim);
+      margin: 0 0 22px;
+      opacity: 0;
+      animation: reveal 0.15s steps(1) forwards;
+      animation-delay: 1.35s;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      opacity: 0;
+      animation: reveal 0.15s steps(1) forwards;
+      animation-delay: 1.4s;
+    }
+
+    label {
+      display: block;
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      color: var(--green-dim);
+      margin-bottom: 6px;
+    }
+
+    label::before {
+      content: "> ";
+      color: var(--green);
+    }
+
+    input {
+      width: 100%;
+      background: #050805;
+      border: 1px solid var(--green-faint);
+      border-bottom: 2px solid var(--green-dim);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 11px 12px;
+      border-radius: 3px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      caret-color: var(--green);
+    }
+
+    input::placeholder {
+      color: #2a5533;
+    }
+
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(57,255,106,0.35);
+    }
+
+    button {
+      margin-top: 4px;
+      background: transparent;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--green);
+      color: #04140a;
+      box-shadow: 0 0 24px rgba(57,255,106,0.45);
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+    }
+
+    .error {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--red);
+      font-size: 12px;
+      background: rgba(255, 68, 68, 0.08);
+      border: 1px solid rgba(255, 68, 68, 0.35);
+      border-radius: 3px;
+      padding: 9px 11px;
+      margin: 0 0 2px;
+    }
+
+    .error::before {
+      content: "[ERROR]";
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .footnote {
+      margin-top: 22px;
+      font-size: 10.5px;
+      color: var(--green-faint);
+      text-align: center;
+      letter-spacing: 0.05em;
+      opacity: 0;
+      animation: reveal 0.15s steps(1) forwards;
+      animation-delay: 1.5s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .boot-line, .divider, h1, .subtitle, form, .footnote {
+        animation: none !important;
+        opacity: 1 !important;
+      }
+      .prompt-caret {
+        animation: none !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .screen { padding: 22px 18px 26px; }
+      .boot-line { white-space: normal; font-size: 11.5px; }
+    }
   </style>
 </head>
 <body>
-  <form class="login-box" method="POST" action="/login">
-    <h2>Iniciar sesión</h2>
-    <% if (error) { %>
-      <p class="error"><%= error %></p>
-    <% } %>
-    <input type="text" name="username" placeholder="Usuario" autocomplete="username" required>
-    <input type="password" name="password" placeholder="Contraseña" autocomplete="current-password" required>
-    <button type="submit">Ingresar</button>
-  </form>
+
+  <div class="wrap">
+    <div class="terminal">
+
+      <div class="titlebar">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="titlebar-label">root@solzen-panel: ~/acceso</span>
+      </div>
+
+      <div class="screen">
+
+        <div class="boot-line"><span class="ok">[OK]</span> Conexión segura establecida</div>
+        <div class="boot-line"><span class="ok">[OK]</span> Base de datos sincronizada</div>
+        <div class="boot-line"><span class="ok">[OK]</span> Sesión anterior finalizada</div>
+        <div class="boot-line">[<span style="color:var(--green)">*</span>] Esperando credenciales...</div>
+
+        <hr class="divider">
+
+        <h1>ACCESO RESTRINGIDO<span class="prompt-caret"></span></h1>
+        <p class="subtitle">Panel de administración — Solzen</p>
+
+        <form method="POST" action="/login">
+          <% if (error) { %>
+            <p class="error"><%= error %></p>
+          <% } %>
+
+          <div>
+            <label for="username">usuario</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="usuario_admin"
+              autocomplete="username"
+              autofocus
+              required
+            >
+          </div>
+
+          <div>
+            <label for="password">contraseña</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••••••"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+
+          <button type="submit">[ INGRESAR ]</button>
+        </form>
+
+        <p class="footnote">4 usuarios autorizados · sesión expira en 8h</p>
+
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

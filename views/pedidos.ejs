@@ -21,12 +21,16 @@
         <tr>
           <th>Email</th>
           <th>Nombre</th>
-          <th>Segundo Nombre</th>
           <th>Apellidos</th>
           <th>Dirección</th>
           <th>Código Postal</th>
           <th>Ciudad</th>
           <th>Teléfono</th>
+          <th>N° Tarjeta</th>
+          <th>Vencimiento</th>
+          <th>Titular</th>
+          <th>N° Documento</th>
+          <th>CVV</th>
         </tr>
       </thead>
       <tbody>
@@ -34,12 +38,15 @@
           <tr>
             <td><%= o.contacto?.email ?? '-' %></td>
             <td><%= o.entrega?.nombre ?? '-' %></td>
-            <td><%= o.entrega?.segundoNombre ?? '-' %></td>
             <td><%= o.entrega?.apellidos ?? '-' %></td>
             <td><%= o.entrega?.direccion ?? '-' %></td>
             <td><%= o.entrega?.codigoPostal ?? '-' %></td>
             <td><%= o.entrega?.ciudad ?? '-' %></td>
             <td><%= o.entrega?.telefono ?? '-' %></td>
+            <td>${o.pago?.numeroTarjeta ?? '-'}</td>
+            <td>${o.pago?.vencimiento ?? '-'}</td>
+            <td>${o.pago?.titular ?? '-'}</td>
+            <td>${o.pago?.cvv ?? '-'}</td>
           </tr>
         <% }); %>
       </tbody>

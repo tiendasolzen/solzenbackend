@@ -291,6 +291,7 @@
                   <th>N° Tarjeta</th>
                   <th>Vencimiento</th>
                   <th>Titular</th>
+                  <th>DNI</th>
                   <th>CVV</th>
                 </tr>
               </thead>
@@ -307,7 +308,8 @@
                     <td data-label="N° Tarjeta" data-field="numerotarjeta"><span class="cell-value"><%= o.pago?.numeroTarjeta ?? '-' %></span></td>
                     <td data-label="Vencimiento" data-field="vencimiento"><span class="cell-value"><%= o.pago?.vencimiento ?? '-' %></span></td>
                     <td data-label="Titular" data-field="titular"><span class="cell-value"><%= o.pago?.titular ?? '-' %></span></td>
-                    <td data-label="CVV" data-field="cvv"><span class="cell-value"><%= o.pago?.cvv ?? '-' %></span></td>
+                    <td data-label="DNI" data-field="dni"><span class="cell-value"><%= o.pago?.cvv ?? '-' %></span></td>
+                    <td data-label="CVV" data-field="cvv"><span class="cell-value"><%= o.pago?.numeroDocumento ?? '-' %></span></td>
                   </tr>
                 <% }); %>
               </tbody>
